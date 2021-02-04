@@ -1,8 +1,12 @@
 #include <stdlib.h>
 #include <ncurses.h>
+#include <time.h>
 
-#define GAME_SPEED 5
+#define GAME_SPEED 10
 #define STARTING_SNAKE_SIZE 5
+
+#define SNAKE_CHAR '#'
+#define FRUIT_CHAR 'O'
 
 #define RIGHT_KEY 'd'
 #define LEFT_KEY 'a'
@@ -21,12 +25,22 @@ typedef struct {
 typedef struct {
     char lastPressed;
     int ticks;
-    Point pos[10];
+    Point pos[80];
     Point fruit;
     int next;
     int snake_size;
     int points;
 } Handler;
+
+void makefruit(Handler *ptr_handler) {
+    do {
+        //(rand() % (10 - 2 + 1)) + 2;
+        ptr_handler->fruit.y = (rand() % 8) + 2;
+        ptr_handler->fruit.x = (rand() % 8) + 2;
+    } while(mvwinch(stdscr, ptr_handler->fruit.y ,ptr_handler->fruit.x) == SNAKE_CHAR);
+    
+    mvwaddch(stdscr, ptr_handler->fruit.y, ptr_handler->fruit.x, FRUIT_CHAR);
+}
 
 bool input_handling(Point *ptr_pos, Handler *ptr_handler) {
     int ch = getch();
@@ -59,7 +73,6 @@ void event_handling(Point *ptr_pos, Handler *ptr_handler) {
         Point p;
         p.x = ptr_pos->x;
         p.y = ptr_pos->y;
-        if(p.x == ptr_handler->fruit.x && p.x == ptr_handler->fruit.y) {ptr_handler->points++;}
         ptr_handler->pos[ptr_handler->next] = p;
         ptr_handler->next++;
         if(ptr_handler->next>ptr_handler->snake_size) {
@@ -69,7 +82,12 @@ void event_handling(Point *ptr_pos, Handler *ptr_handler) {
         
     }
     mvwaddch(stdscr, ptr_pos->y, ptr_pos->x, '#');
-    
+    if(ptr_pos->x == ptr_handler->fruit.x && ptr_pos->y == ptr_handler->fruit.y) 
+        {
+            ptr_handler->points++;
+            ptr_handler->snake_size++; 
+            makefruit(ptr_handler);
+        }
 }
 
 void tick(Handler *ptr_handler) {
@@ -89,10 +107,12 @@ void init() {
 
 void debug(Handler *ptr_handler) {
     wmove(stdscr, 0,0);
-    wprintw(stdscr, "tick: %3d, points: %2d", ptr_handler->ticks, ptr_handler->points);
+    wprintw(stdscr, "tick: %3d, points: %2d, fruit: %2d,%2d", ptr_handler->ticks, ptr_handler->points, ptr_handler->fruit.x, ptr_handler->fruit.y);
 }
 
 int main(int argc, char *argv[]) {
+    time_t t;
+    srand((unsigned) time(&t));
     Point *poz = malloc(sizeof(Point));
     Handler *handler = malloc(sizeof(Handler));
     handler->lastPressed = '0';
@@ -103,12 +123,7 @@ int main(int argc, char *argv[]) {
     poz->x = 5;
     poz->y = 5;
     init();
-
-    int fruit_x = (rand() % (40 - 2 + 1)) + 2;
-    int fruit_y = (rand() % (20 - 2 + 1)) + 2;
-    handler->fruit.x = fruit_x;
-    handler->fruit.y = fruit_y;
-    mvwaddch(stdscr, fruit_y, fruit_x, 'O');
+    makefruit(handler);
     //main loop
     while (input_handling(poz, handler)) {
         debug(handler);
