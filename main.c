@@ -70,6 +70,11 @@ void init() {
     nodelay(stdscr, TRUE);
 }
 
+void debug(Handler *ptr_handler) {
+    wmove(stdscr, 0,0);
+    wprintw(stdscr, "tick: %d", ptr_handler->ticks);
+}
+
 int main(int argc, char *argv[]) {
     Point *poz = malloc(sizeof(Point));
     Handler *handler = malloc(sizeof(Handler));
@@ -80,8 +85,7 @@ int main(int argc, char *argv[]) {
     init();
     //main loop
     while (input_handling(poz, handler)) {
-        wmove(stdscr, 0,0);
-        wprintw(stdscr, "tick: %d", handler->ticks);
+        debug(handler);
         event_handling(poz, handler);
         tick(handler);
     }
