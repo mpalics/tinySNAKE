@@ -2,6 +2,7 @@
 #include <ncurses.h>
 
 #define GAME_SPEED 5
+#define STARTING_SNAKE_SIZE 5
 
 #define RIGHT_KEY 'd'
 #define LEFT_KEY 'a'
@@ -22,6 +23,7 @@ typedef struct {
     int ticks;
     Point pos[10];
     int next;
+    int snake_size;
 } Handler;
 
 bool input_handling(Point *ptr_pos, Handler *ptr_handler) {
@@ -57,7 +59,7 @@ void event_handling(Point *ptr_pos, Handler *ptr_handler) {
         p.y = ptr_pos->y;
         ptr_handler->pos[ptr_handler->next] = p;
         ptr_handler->next++;
-        if(ptr_handler->next>9) {
+        if(ptr_handler->next>ptr_handler->snake_size) {
             ptr_handler->next = 0;
         }
         mvwaddch(stdscr, ptr_handler->pos[ptr_handler->next].y, ptr_handler->pos[ptr_handler->next].x, ' ');
@@ -93,6 +95,7 @@ int main(int argc, char *argv[]) {
     handler->lastPressed = '0';
     handler->ticks = 0;
     handler->next = 0;
+    handler->snake_size = STARTING_SNAKE_SIZE;
     poz->x = 5;
     poz->y = 5;
     init();
