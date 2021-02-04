@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
+#define GAME_SPEED 5
+
 #define RIGHT_KEY 'd'
 #define LEFT_KEY 'a'
 #define UP_KEY 'w'
@@ -17,6 +19,7 @@ typedef struct {
 
 typedef struct {
     char lastPressed;
+    int ticks;
 } Handler;
 
 bool input_handling(Point *ptr_pos, Handler *ptr_handler) {
@@ -31,22 +34,24 @@ bool input_handling(Point *ptr_pos, Handler *ptr_handler) {
 
 void event_handling(Point *ptr_pos, Handler *ptr_handler) {
     mvwaddch(stdscr, ptr_pos->y, ptr_pos->x, ' ');
-    switch(ptr_handler->lastPressed) {
-        case LEFT_KEY:
-            LEFT;
-            break;
-        case RIGHT_KEY:
-            RIGHT;
-            break;
-        case UP_KEY:
-            UP;
-            break;
-        case DOWN_KEY:
-            DOWN;
-            break;
-        default:
-            break;
-        mvwaddch(stdscr, ptr_pos->y, ptr_pos->x, ACS_BLOCK);
+    if(ptr_handler->ticks % GAME_SPEED == 0) {
+        switch(ptr_handler->lastPressed) {
+            case LEFT_KEY:
+                LEFT;
+                break;
+            case RIGHT_KEY:
+                RIGHT;
+                break;
+            case UP_KEY:
+                UP;
+                break;
+            case DOWN_KEY:
+                DOWN;
+                break;
+            default:
+                break;
+            mvwaddch(stdscr, ptr_pos->y, ptr_pos->x, '#');    
+        }
     }
 }
 
@@ -54,9 +59,9 @@ int main(int argc, char *argv[]) {
     Point *poz = malloc(sizeof(Point));
     Handler *handler = malloc(sizeof(Handler));
     handler->lastPressed = '0';
+    handler->ticks = 0;
     poz->x = 5;
     poz->y = 5;
-    int ticks = 0;
     initscr();
     cbreak();
     noecho();
@@ -65,11 +70,12 @@ int main(int argc, char *argv[]) {
     //main loop
     while (input_handling(poz, handler)) {
         wmove(stdscr, 0,0);
-        wprintw(stdscr, "tick: %d", ticks);
-        ticks++;
+        wprintw(stdscr, "tick: %d", handler->ticks);
+        handler->ticks++;
+        if(handler->ticks > 100) {handler->ticks = 1;}
         event_handling(poz, handler);
         wrefresh(stdscr);
-        napms(100);
+        napms(15);
     }
     return 0;
 }
