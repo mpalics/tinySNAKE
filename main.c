@@ -55,6 +55,21 @@ void event_handling(Point *ptr_pos, Handler *ptr_handler) {
     }
 }
 
+void tick(Handler *ptr_handler) {
+    ptr_handler->ticks++;
+    if(ptr_handler->ticks > 100) {ptr_handler->ticks = 1;}
+    wrefresh(stdscr);
+    napms(15);
+}
+
+void init() {
+    initscr();
+    cbreak();
+    noecho();
+    scrollok(stdscr, TRUE);
+    nodelay(stdscr, TRUE);
+}
+
 int main(int argc, char *argv[]) {
     Point *poz = malloc(sizeof(Point));
     Handler *handler = malloc(sizeof(Handler));
@@ -62,20 +77,13 @@ int main(int argc, char *argv[]) {
     handler->ticks = 0;
     poz->x = 5;
     poz->y = 5;
-    initscr();
-    cbreak();
-    noecho();
-    scrollok(stdscr, TRUE);
-    nodelay(stdscr, TRUE);
+    init();
     //main loop
     while (input_handling(poz, handler)) {
         wmove(stdscr, 0,0);
         wprintw(stdscr, "tick: %d", handler->ticks);
-        handler->ticks++;
-        if(handler->ticks > 100) {handler->ticks = 1;}
         event_handling(poz, handler);
-        wrefresh(stdscr);
-        napms(15);
+        tick(handler);
     }
     return 0;
 }
