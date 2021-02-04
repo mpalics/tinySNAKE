@@ -20,6 +20,8 @@ typedef struct {
 typedef struct {
     char lastPressed;
     int ticks;
+    Point pos[10];
+    int next;
 } Handler;
 
 bool input_handling(Point *ptr_pos, Handler *ptr_handler) {
@@ -33,7 +35,6 @@ bool input_handling(Point *ptr_pos, Handler *ptr_handler) {
 }
 
 void event_handling(Point *ptr_pos, Handler *ptr_handler) {
-    mvwaddch(stdscr, ptr_pos->y, ptr_pos->x, ' ');
     if(ptr_handler->ticks % GAME_SPEED == 0) {
         switch(ptr_handler->lastPressed) {
             case LEFT_KEY:
@@ -50,9 +51,20 @@ void event_handling(Point *ptr_pos, Handler *ptr_handler) {
                 break;
             default:
                 break;
-            mvwaddch(stdscr, ptr_pos->y, ptr_pos->x, '#');    
         }
+        Point p;
+        p.x = ptr_pos->x;
+        p.y = ptr_pos->y;
+        ptr_handler->pos[ptr_handler->next] = p;
+        ptr_handler->next++;
+        if(ptr_handler->next>9) {
+            ptr_handler->next = 0;
+        }
+        mvwaddch(stdscr, ptr_handler->pos[ptr_handler->next].y, ptr_handler->pos[ptr_handler->next].x, ' ');
+        
     }
+    mvwaddch(stdscr, ptr_pos->y, ptr_pos->x, '#');
+    
 }
 
 void tick(Handler *ptr_handler) {
@@ -80,6 +92,7 @@ int main(int argc, char *argv[]) {
     Handler *handler = malloc(sizeof(Handler));
     handler->lastPressed = '0';
     handler->ticks = 0;
+    handler->next = 0;
     poz->x = 5;
     poz->y = 5;
     init();
