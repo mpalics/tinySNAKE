@@ -22,8 +22,10 @@ typedef struct {
     char lastPressed;
     int ticks;
     Point pos[10];
+    Point fruit;
     int next;
     int snake_size;
+    int points;
 } Handler;
 
 bool input_handling(Point *ptr_pos, Handler *ptr_handler) {
@@ -57,6 +59,7 @@ void event_handling(Point *ptr_pos, Handler *ptr_handler) {
         Point p;
         p.x = ptr_pos->x;
         p.y = ptr_pos->y;
+        if(p.x == ptr_handler->fruit.x && p.x == ptr_handler->fruit.y) {ptr_handler->points++;}
         ptr_handler->pos[ptr_handler->next] = p;
         ptr_handler->next++;
         if(ptr_handler->next>ptr_handler->snake_size) {
@@ -86,7 +89,7 @@ void init() {
 
 void debug(Handler *ptr_handler) {
     wmove(stdscr, 0,0);
-    wprintw(stdscr, "tick: %d", ptr_handler->ticks);
+    wprintw(stdscr, "tick: %3d, points: %2d", ptr_handler->ticks, ptr_handler->points);
 }
 
 int main(int argc, char *argv[]) {
@@ -95,10 +98,17 @@ int main(int argc, char *argv[]) {
     handler->lastPressed = '0';
     handler->ticks = 0;
     handler->next = 0;
+    handler->points = 0;
     handler->snake_size = STARTING_SNAKE_SIZE;
     poz->x = 5;
     poz->y = 5;
     init();
+
+    int fruit_x = (rand() % (40 - 2 + 1)) + 2;
+    int fruit_y = (rand() % (20 - 2 + 1)) + 2;
+    handler->fruit.x = fruit_x;
+    handler->fruit.y = fruit_y;
+    mvwaddch(stdscr, fruit_y, fruit_x, 'O');
     //main loop
     while (input_handling(poz, handler)) {
         debug(handler);
