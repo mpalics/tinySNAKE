@@ -42,10 +42,14 @@ void makefruit(Handler *ptr_handler) {
     mvwaddch(stdscr, ptr_handler->fruit.y, ptr_handler->fruit.x, FRUIT_CHAR);
 }
 
+bool IsDirectionalKey(char c) {
+        return (c == RIGHT_KEY || c == LEFT_KEY || c == UP_KEY || c == DOWN_KEY) ? true : false;
+}
+
 bool input_handling(Point *ptr_pos, Handler *ptr_handler) {
     int ch = getch();
     //while( (ch = getch()) == ERR) {}
-        if (ch != ERR) {ptr_handler->lastPressed = ch;}
+        if (ch != ERR && IsDirectionalKey(ch)) {ptr_handler->lastPressed = ch;}
         if (ch == 'x') {
             return false;
         }
@@ -107,7 +111,8 @@ void init() {
 
 void debug(Handler *ptr_handler) {
     wmove(stdscr, 0,0);
-    wprintw(stdscr, "tick: %3d, points: %2d, fruit: %2d,%2d", ptr_handler->ticks, ptr_handler->points, ptr_handler->fruit.x, ptr_handler->fruit.y);
+    wprintw(stdscr, "tick: %3d, points: %2d, fruit: %2d,%2d, lastPressed: %c", 
+    ptr_handler->ticks, ptr_handler->points, ptr_handler->fruit.x, ptr_handler->fruit.y, ptr_handler->lastPressed);
 }
 
 int main(int argc, char *argv[]) {
