@@ -4,6 +4,7 @@
 
 #define GAME_SPEED 10
 #define STARTING_SNAKE_SIZE 5
+#define WIN_CONDITION 2
 
 #define SNAKE_CHAR '#'
 #define FRUIT_CHAR 'O'
@@ -115,6 +116,17 @@ void debug(Handler *ptr_handler) {
     ptr_handler->ticks, ptr_handler->points, ptr_handler->fruit.x, ptr_handler->fruit.y, ptr_handler->lastPressed);
 }
 
+void checkwin(Handler *ptr_handler) {
+    if (ptr_handler->points >= WIN_CONDITION)
+    {
+        nodelay(stdscr, FALSE);
+        attron(A_BLINK);
+        wprintw(stdscr, " YOU WIN!");
+        getch();
+        exit(0);
+    } 
+}
+
 int main(int argc, char *argv[]) {
     time_t t;
     srand((unsigned) time(&t));
@@ -134,6 +146,7 @@ int main(int argc, char *argv[]) {
         debug(handler);
         event_handling(poz, handler);
         tick(handler);
+        checkwin(handler);
     }
     return 0;
 }
